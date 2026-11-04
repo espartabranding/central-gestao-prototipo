@@ -881,6 +881,56 @@ canvas.ass { width: 100%; height: 140px; background: var(--band); border: 1.5px 
   .view { animation: entra .3s ease-out; }
   @keyframes entra { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 }
+/* ===== Monte a sua Central (checklist do cliente) ===== */
+.esc-off { display: none !important; }
+.duo:has(> .esc-off) { grid-template-columns: minmax(0, 1fr); }
+.monte { margin: 28px var(--pad) 0; border: 1px solid var(--line); border-radius: 14px; background: var(--sheet); overflow: hidden; }
+.monte > summary { list-style: none; cursor: pointer; display: flex; flex-wrap: wrap; gap: 10px 20px; align-items: center; justify-content: space-between; padding: 18px 22px; background: var(--band); }
+.monte > summary::-webkit-details-marker { display: none; }
+.monte > summary:focus-visible { outline: 2px solid var(--blue); outline-offset: -2px; }
+.monte-tit { display: grid; gap: 2px; }
+.monte-tit b { font-size: 19px; font-weight: 800; color: var(--ink); }
+.monte-tit span { font-size: 13px; color: var(--muted); }
+.monte-cont { display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center; font-size: 13px; color: var(--muted); }
+.monte-cont strong { font-size: 22px; font-weight: 800; color: var(--blue); font-variant-numeric: tabular-nums; margin-right: 4px; }
+.monte-cont .fora strong { color: var(--warn); }
+.monte-seta { width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--line); display: grid; place-items: center; color: var(--blue); background: var(--sheet); transition: transform .2s ease; }
+.monte[open] .monte-seta { transform: rotate(180deg); }
+.monte-corpo { padding: 18px 22px 22px; display: grid; gap: 18px; }
+.monte-acoes { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.monte-acoes .btn { min-height: 38px; text-decoration: none; }
+.monte-acoes .wa { border-color: #25a35a; color: #fff; background: #25a35a; }
+.monte-acoes .wa:hover { background: #1f8c4d; }
+.monte-msg { font-size: 12.5px; color: var(--muted); }
+.monte-grupos { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+.mg { display: grid; gap: 6px; align-content: start; }
+.mg h3 { font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 0 2px; }
+.mi-ck { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 2px 10px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; cursor: pointer; min-height: 44px; background: var(--sheet); transition: background-color .15s ease, border-color .15s ease; }
+.mi-ck:hover { border-color: var(--blue); }
+.mi-ck.on { background: var(--blue-soft); border-color: var(--blue); }
+.mi-ck input { width: 18px; height: 18px; margin: 2px 0 0; accent-color: var(--blue); cursor: pointer; }
+.mi-ck input:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.mi-ck b { font-size: 13.5px; font-weight: 700; color: var(--ink); line-height: 1.3; }
+.mi-ck small { grid-column: 2; font-size: 12px; color: var(--muted); line-height: 1.4; }
+.mi-ck em { grid-column: 2; justify-self: start; font-style: normal; font-size: 10.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 7px; border-radius: 4px; margin-top: 4px; }
+.mi-ck em.contrato { color: var(--ok); background: var(--ok-soft); }
+.mi-ck em.novo { color: var(--blue); background: var(--sheet); border: 1px solid var(--blue); }
+.mi-ck em.mercado { color: var(--warn); background: var(--warn-soft); }
+.monte-notas { display: grid; gap: 6px; }
+.monte-notas label { font-size: 13px; font-weight: 700; color: var(--ink); }
+.monte-notas textarea { font: inherit; font-size: 14px; color: var(--text); background: var(--band); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; min-height: 80px; resize: vertical; width: 100%; box-sizing: border-box; }
+.monte-notas textarea:focus-visible { outline: 2px solid var(--blue); outline-offset: 0; }
+.novos-mod { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+.novo-card { border: 1.5px dashed var(--grey-line); border-radius: 12px; padding: 14px 16px; display: grid; gap: 6px; background: var(--sheet); }
+.novo-card b { font-size: 14px; color: var(--ink); }
+.novo-card span { font-size: 12.5px; color: var(--muted); }
+.novo-card i { font-style: normal; justify-self: start; font-size: 10.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--blue); background: var(--blue-soft); padding: 3px 7px; border-radius: 4px; }
+.painel-vazio { margin: 0; border: 1.5px dashed var(--grey-line); border-radius: 12px; padding: 22px; color: var(--muted); font-size: 14px; text-align: center; }
+@media (max-width: 640px) {
+  .monte { margin: 18px 16px 0; }
+  .monte > summary, .monte-corpo { padding-left: 16px; padding-right: 16px; }
+}
+@media (prefers-reduced-motion: reduce) { .monte-seta, .mi-ck { transition: none; } }
 </style>
 </head>
 <body>
@@ -930,46 +980,74 @@ canvas.ass { width: 100%; height: 140px; background: var(--band); border: 1.5px 
 
     <!-- ============ PAINEL DE OBRAS (VISÃO GERAL) ============ -->
     <main class="view" id="v-visao">
+      <!-- Monte a sua Central: checklist do cliente. Cada item marcado mostra o menu e as telas correspondentes. -->
+      <details class="monte" id="monte" open>
+        <summary>
+          <span class="monte-tit"><b>Monte a sua Central</b><span>Marque o que a ferramenta precisa ter. O menu e as telas aparecem conforme você marca.</span></span>
+          <span class="monte-cont"><span><strong id="m-n">0</strong>de 27 marcados</span><span class="fora"><strong id="m-fora">0</strong>fora do contrato atual</span><span class="monte-seta" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></span></span>
+        </summary>
+        <div class="monte-corpo">
+          <div class="monte-acoes">
+            <button class="btn" type="button" id="m-contrato">Marcar o que já está no contrato</button>
+            <button class="btn" type="button" id="m-tudo">Marcar tudo</button>
+            <button class="btn" type="button" id="m-limpar">Desmarcar tudo</button>
+            <a class="btn wa" id="m-wa" href="https://wa.me/" target="_blank" rel="noopener">Enviar escolhas pelo WhatsApp</a>
+            <button class="btn" type="button" id="m-copiar">Copiar a lista</button>
+            <span class="monte-msg" id="m-msg" role="status">As escolhas ficam salvas neste navegador.</span>
+          </div>
+          <div class="monte-grupos" id="m-grupos"></div>
+          <div class="monte-notas">
+            <label for="m-notas">Faltou alguma coisa? Escreva aqui</label>
+            <textarea id="m-notas" placeholder="Ex.: quero ver as obras de cada rede de lojas separadas"></textarea>
+          </div>
+        </div>
+      </details>
       <section class="painel-topo">
         <div class="painel-tit">
           <div><span class="eyebrow-p">Terça, 3 de novembro de 2026 · atualizado às 08:12</span><h1>Painel de obras</h1></div>
           <div class="acts"><button class="btn" type="button" data-go="cronograma">Cronograma geral</button><button class="btn primary" type="button" data-toast="Nova obra criada: Projeto 17">+ Nova obra</button></div>
         </div>
-        <div class="faixa" id="faixa-painel"></div>
-        <div class="filtro" role="group" aria-label="Filtrar obras">
+        <p class="painel-vazio" id="painel-vazio">Marque os itens em “Monte a sua Central” e o painel se monta aqui.</p>
+        <div class="faixa" id="faixa-painel" data-escolha="dashboard"></div>
+        <div class="filtro" role="group" aria-label="Filtrar obras" data-escolha="dashboard">
           <button type="button" data-filtro="todas" aria-pressed="true">Todas</button>
           <button type="button" data-filtro="andamento" aria-pressed="false">Em andamento</button>
           <button type="button" data-filtro="atrasadas" aria-pressed="false">Com atraso</button>
           <button type="button" data-filtro="alertas" aria-pressed="false">Com alertas</button>
           <button type="button" data-filtro="orcamento" aria-pressed="false">Em orçamento</button>
         </div>
-        <div class="painel-obras" id="painel-obras"></div>
+        <div class="painel-obras" id="painel-obras" data-escolha="dashboard"></div>
       </section>
 
-      <section class="section">
+      <section class="section esc-off" id="novos-sec">
+        <div class="sec-head"><h2>Novos módulos escolhidos</h2><p>Ainda não têm tela no protótipo: serão desenhados a partir destas escolhas</p></div>
+        <div class="novos-mod" id="novos-mod"></div>
+      </section>
+
+      <section class="section" data-escolha="gantt">
         <div class="sec-head"><h2>Cronograma geral</h2><p>Todas as obras na mesma linha do tempo</p></div>
         <div class="gantt-wrap"><div class="gantt" id="gantt-geral"></div></div>
         <button class="more" type="button" data-go="cronograma">Abrir cronograma com todas as fases <svg><use href="#i-seta"/></svg></button>
       </section>
-      <section class="section">
+      <section class="section" data-escolha="agenda diario_mais vistoria">
         <div class="duo">
-          <div style="display:grid;gap:22px;min-width:0"><div class="sec-head"><h2>Hoje nas obras</h2><p>Equipes e atividades do dia</p></div><div class="tbl"><table id="tb-hoje"></table></div></div>
-          <div style="display:grid;gap:22px;min-width:0"><div class="sec-head"><h2>Ocorrências e pendências</h2><span class="st s-bad" id="n-alertas"></span></div><div class="alerts" id="alertas"></div></div>
+          <div style="display:grid;gap:22px;min-width:0" data-escolha="agenda"><div class="sec-head"><h2>Hoje nas obras</h2><p>Equipes e atividades do dia</p></div><div class="tbl"><table id="tb-hoje"></table></div></div>
+          <div style="display:grid;gap:22px;min-width:0" data-escolha="diario_mais vistoria"><div class="sec-head"><h2>Ocorrências e pendências</h2><span class="st s-bad" id="n-alertas"></span></div><div class="alerts" id="alertas"></div></div>
         </div>
       </section>
-      <section class="section">
+      <section class="section" data-escolha="cronograma avisos">
         <div class="duo">
-          <div style="display:grid;gap:22px;min-width:0"><div class="sec-head"><h2>Próximas entregas</h2><p>Fases que terminam nos próximos 14 dias</p></div><div class="tbl"><table id="tb-entregas"></table></div></div>
-          <div style="display:grid;gap:22px;min-width:0"><div class="sec-head"><h2>Avisos das obras</h2><p>Urgentes e fixados primeiro</p></div><div class="avisos" id="avisos-geral"></div></div>
+          <div style="display:grid;gap:22px;min-width:0" data-escolha="cronograma"><div class="sec-head"><h2>Próximas entregas</h2><p>Fases que terminam nos próximos 14 dias</p></div><div class="tbl"><table id="tb-entregas"></table></div></div>
+          <div style="display:grid;gap:22px;min-width:0" data-escolha="avisos"><div class="sec-head"><h2>Avisos das obras</h2><p>Urgentes e fixados primeiro</p></div><div class="avisos" id="avisos-geral"></div></div>
         </div>
       </section>
-      <section class="section">
+      <section class="section" data-escolha="fisfin relatorios">
         <div class="sec-head"><h2>Avanço físico das obras</h2><p>Média ponderada, últimas 8 semanas</p></div>
         <div class="chart-head"><span class="leg" style="--c:var(--blue)">Executado</span><span class="leg" style="--c:var(--grey-line)">Previsto</span></div>
         <div class="chart"><canvas id="ch-visao" aria-label="Avanço físico previsto e executado, média das obras"></canvas></div>
         <span></span>
       </section>
-      <section class="section">
+      <section class="section" data-escolha="diario">
         <div class="sec-head"><h2>Últimas do campo</h2><p>Diários e fotos enviados pelas equipes</p></div>
         <div class="campo-grid" id="campo-grid"></div>
         <button class="more" type="button" data-go="diario">Ver diário de obra <svg><use href="#i-seta"/></svg></button>
@@ -2410,5 +2488,152 @@ canvas.ass { width: 100%; height: 140px; background: var(--band); border: 1.5px 
 })();
 </script>
 
+<script>
+/* ===== Monte a sua Central: checklist do cliente =====
+   Cada item marcado mostra o menu e as partes do protótipo ligadas a ele.
+   As escolhas ficam no localStorage deste navegador e podem ser enviadas pelo WhatsApp. */
+(function () {
+  var ORIGEM = { contrato: "Já no contrato", novo: "Pedido novo", mercado: "Visto no mercado" };
+  var GR = [
+    ["Gestão da obra", [
+      ["dashboard", "Todas as obras numa tela", "Orçado, realizado, saldo e % executado de cada obra.", "contrato", 1],
+      ["cronograma", "Cronograma com fases editáveis", "Início, fim e responsável de cada fase da obra.", "contrato", 1],
+      ["gantt", "Gantt da obra e cronograma geral", "As fases em barras na linha do tempo, com atrasos em destaque.", "novo", 1],
+      ["raci", "Quem faz o quê em cada fase (RACI)", "Quem executa, quem aprova, quem é consultado e quem é avisado.", "novo", 1],
+      ["avisos", "Painel de avisos", "Recados e alertas da obra num lugar só.", "novo", 1],
+      ["conversa", "Conversa da obra", "Mensagens entre os envolvidos, guardadas dentro da obra.", "novo", 1],
+      ["modelos", "Modelos por tipo de instalação", "Etapas, prazos e checklist prontos para cada tipo de obra.", "mercado", 0],
+      ["agenda", "Agenda das equipes", "Quem está em qual loja em cada semana, com as viagens.", "mercado", 1]
+    ]],
+    ["Orçamento e números", [
+      ["orcamento", "Orçamento do jeito da empresa", "Itens, mão de obra e material, com versões e cópia de obra anterior.", "contrato", 1],
+      ["aditivos", "Aditivos aprovados pelo cliente", "Serviço extra pedido na loja, aprovado e somado ao orçamento.", "mercado", 0],
+      ["fisfin", "Físico-financeiro e % executado", "Quanto vale cada etapa e quanto já foi feito e gasto.", "contrato", 1],
+      ["medicao", "Medição e cobrança por etapa", "O % executado vira o valor a receber do cliente.", "mercado", 0],
+      ["relatorios", "Relatórios e curva S", "Custos por obra e categoria, programado × realizado.", "contrato", 1]
+    ]],
+    ["Equipe em campo", [
+      ["diario", "Diário de obra com fotos e assinaturas", "Fotos pela câmera e assinatura com o dedo do colaborador e do responsável pela loja.", "contrato", 1],
+      ["diario_mais", "Equipe presente, clima e ocorrências", "O que o Mais Controle já registra hoje no diário.", "mercado", 1],
+      ["vistoria", "Checklist de vistoria e pendências", "Lista de entrega com foto e aceite do responsável pela loja.", "mercado", 0],
+      ["ponto", "Chegada na loja e horas por obra", "Registro de entrada e saída, ligado ao custo de mão de obra.", "mercado", 0],
+      ["documentos", "Plantas e documentos da obra", "Layout da loja e projeto, sempre na versão certa.", "mercado", 0],
+      ["offline", "Funciona sem internet", "O celular guarda e envia quando o sinal voltar.", "mercado", 0]
+    ]],
+    ["Despesas e financeiro", [
+      ["whatsapp", "Despesas pelo WhatsApp", "Foto do cupom + “Projeto 11, loja Marabá, alimentação”.", "contrato", 1],
+      ["aprovacao", "Aprovação de pré-lançamentos", "O gestor confere, escolhe a conta e a data de pagamento.", "contrato", 1],
+      ["quempagou", "Quem pagou e saldo de cada colaborador", "Cartão da empresa, adiantamento ou reembolso.", "mercado", 0],
+      ["pagar", "Contas a pagar e a receber", "Com baixa e estorno, nunca exclusão.", "contrato", 0],
+      ["caixa", "Fluxo de caixa da empresa e de cada obra", "Por período e por categoria.", "contrato", 1],
+      ["compras", "Pedido de material pelo campo", "A equipe pede, o escritório cota e compra.", "mercado", 0]
+    ]],
+    ["Cliente da loja", [
+      ["link", "Link de acompanhamento para o lojista", "Andamento e fotos da obra, sem precisar de senha.", "mercado", 0],
+      ["alertas", "Avisos automáticos no WhatsApp", "Etapa atrasada, gasto acima do previsto, diário pendente.", "mercado", 0]
+    ]]
+  ];
+  var FIN = ["orcamento", "aditivos", "whatsapp", "aprovacao", "quempagou", "caixa", "pagar", "medicao"];
+  // [seletor, itens que mostram o elemento]: o elemento some quando nenhum desses itens está marcado
+  var REGRAS = [
+    ['a[href="#cronograma"], [data-go="cronograma"]', ["gantt"]],
+    ['a[href$="-cronograma"]', ["cronograma", "gantt"]],
+    ['a[href$="-raci"]', ["raci"]],
+    ['a[href$="-avisos"]', ["avisos"]],
+    ['a[href$="-conversa"]', ["conversa"]],
+    ['a[href="#equipes"], a[href$="-equipe"]', ["agenda", "ponto"]],
+    ['a[href="#orcamento"], a[href$="-orcamento"]', ["orcamento", "aditivos"]],
+    ['a[href$="-custos"]', ["fisfin", "pagar", "medicao"]],
+    ["#ob-band .chart-box", ["relatorios", "fisfin"]],
+    ['a[href="#diario"], a[href$="-diario"], [data-go="diario"]', ["diario", "diario_mais"]],
+    ['a[href$="-fotos"]', ["diario", "vistoria"]],
+    ['a[href="#despesas"], a[href$="-despesas"]', ["whatsapp", "aprovacao", "quempagou"]],
+    ['.fin-nav a[href="#financeiro"], .ng-fin a[href="#financeiro"]', ["caixa", "pagar"]],
+    ['#menu a[href="#financeiro"], .ng-menu > a[href="#financeiro"]', FIN],
+    ['.os-grupo[aria-label="Planejamento"]', ["cronograma", "gantt", "raci", "orcamento", "aditivos"]],
+    ['.os-grupo[aria-label="Campo"]', ["diario", "diario_mais", "vistoria", "agenda", "ponto"]],
+    ['.os-grupo[aria-label="Comunicação"]', ["avisos", "conversa"]],
+    ['.os-grupo[aria-label="Financeiro"]', ["fisfin", "pagar", "medicao", "whatsapp", "aprovacao", "quempagou"]]
+  ];
+  var ITENS = [];
+  GR.forEach(function (g) { g[1].forEach(function (i) { ITENS.push({ id: i[0], t: i[1], d: i[2], o: i[3], tela: !!i[4] }); }); });
+
+  var CHAVE = "central-monte-escolhas";
+  var marc = {}, notas = "";
+  try { var s = JSON.parse(localStorage.getItem(CHAVE) || "null"); if (s) { marc = s.marc || {}; notas = s.notas || ""; } } catch (e) {}
+  function guardar() { try { localStorage.setItem(CHAVE, JSON.stringify({ marc: marc, notas: notas, em: new Date().toISOString() })); } catch (e) {} }
+  function algum(ids) { return ids.some(function (id) { return marc[id]; }); }
+  function $(id) { return document.getElementById(id); }
+
+  var estilo = document.createElement("style"); estilo.id = "monte-regras"; document.head.appendChild(estilo);
+
+  function texto() {
+    var l = ["Central de Gestão: o que eu quero na ferramenta", ""];
+    GR.forEach(function (g) {
+      var sel = g[1].filter(function (i) { return marc[i[0]]; });
+      if (!sel.length) return;
+      l.push(g[0].toUpperCase());
+      sel.forEach(function (i) { l.push("✔ " + i[1]); });
+      l.push("");
+    });
+    var nao = ITENS.filter(function (i) { return !marc[i.id]; });
+    if (nao.length) { l.push("NÃO PRECISO"); nao.forEach(function (i) { l.push("✘ " + i.t); }); l.push(""); }
+    if (notas.trim()) { l.push("OBSERVAÇÕES"); l.push(notas.trim()); }
+    return l.join("\n").trim();
+  }
+
+  function aplicar() {
+    // Menus e abas que o protótipo redesenha: regras de CSS
+    estilo.textContent = REGRAS.filter(function (r) { return !algum(r[1]); }).map(function (r) { return r[0] + "{display:none!important}"; }).join("\n");
+    // Partes fixas do painel marcadas com data-escolha
+    document.querySelectorAll("[data-escolha]").forEach(function (el) { el.classList.toggle("esc-off", !algum(el.dataset.escolha.split(" "))); });
+    var n = 0, fora = 0;
+    ITENS.forEach(function (i) { if (marc[i.id]) { n++; if (i.o !== "contrato") fora++; } });
+    $("m-n").textContent = n; $("m-fora").textContent = fora;
+    // Escolhas que ainda não têm tela no protótipo
+    var novos = ITENS.filter(function (i) { return marc[i.id] && !i.tela; });
+    $("novos-sec").classList.toggle("esc-off", !novos.length);
+    $("novos-mod").innerHTML = novos.map(function (i) { return '<div class="novo-card"><i>Tela a desenhar</i><b>' + i.t + "</b><span>" + i.d + "</span></div>"; }).join("");
+    $("painel-vazio").hidden = n > 0;
+    $("m-wa").href = "https://wa.me/?text=" + encodeURIComponent(texto());
+  }
+
+  function montar() {
+    $("m-grupos").innerHTML = GR.map(function (g) {
+      return '<div class="mg"><h3>' + g[0] + "</h3>" + g[1].map(function (i) {
+        return '<label class="mi-ck' + (marc[i[0]] ? " on" : "") + '" for="mck-' + i[0] + '"><input type="checkbox" id="mck-' + i[0] + '" data-mck="' + i[0] + '"' + (marc[i[0]] ? " checked" : "") + "><b>" + i[1] + "</b><small>" + i[2] + '</small><em class="' + i[3] + '">' + ORIGEM[i[3]] + "</em></label>";
+      }).join("") + "</div>";
+    }).join("");
+    $("m-notas").value = notas;
+  }
+  function sincronizar() {
+    document.querySelectorAll("[data-mck]").forEach(function (c) { c.checked = !!marc[c.dataset.mck]; c.parentNode.classList.toggle("on", c.checked); });
+  }
+  function msg(t) { $("m-msg").textContent = t; }
+
+  montar(); aplicar();
+
+  $("m-grupos").addEventListener("change", function (e) {
+    var c = e.target.closest("[data-mck]"); if (!c) return;
+    if (c.checked) marc[c.dataset.mck] = true; else delete marc[c.dataset.mck];
+    c.parentNode.classList.toggle("on", c.checked);
+    guardar(); aplicar(); msg("Salvo neste navegador.");
+  });
+  function varios(fn) { ITENS.forEach(function (i) { if (fn(i)) marc[i.id] = true; else delete marc[i.id]; }); guardar(); sincronizar(); aplicar(); msg("Salvo neste navegador."); }
+  $("m-contrato").addEventListener("click", function () { varios(function (i) { return i.o === "contrato" || marc[i.id]; }); });
+  $("m-tudo").addEventListener("click", function () { varios(function () { return true; }); });
+  $("m-limpar").addEventListener("click", function () { varios(function () { return false; }); });
+  var tN;
+  $("m-notas").addEventListener("input", function (e) { notas = e.target.value.slice(0, 3000); clearTimeout(tN); tN = setTimeout(function () { guardar(); aplicar(); msg("Salvo neste navegador."); }, 500); });
+  $("m-wa").addEventListener("click", function (e) {
+    if (!Object.keys(marc).length) { e.preventDefault(); msg("Marque pelo menos um item antes de enviar."); }
+  });
+  $("m-copiar").addEventListener("click", function () {
+    var t = texto();
+    function reserva() { var a = document.createElement("textarea"); a.value = t; document.body.appendChild(a); a.select(); try { document.execCommand("copy"); msg("Lista copiada. Cole no WhatsApp ou no e-mail."); } catch (x) { msg("Não deu para copiar. Use o botão do WhatsApp."); } a.remove(); }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(function () { msg("Lista copiada. Cole no WhatsApp ou no e-mail."); }, reserva); else reserva();
+  });
+})();
+</script>
 </body>
 </html>
