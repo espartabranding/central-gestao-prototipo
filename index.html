@@ -996,7 +996,7 @@ canvas.ass { width: 100%; height: 140px; background: var(--band); border: 1.5px 
             <button class="btn" type="button" id="m-limpar">Desmarcar tudo</button>
             <a class="btn wa" id="m-wa" href="https://wa.me/" target="_blank" rel="noopener">Enviar escolhas pelo WhatsApp</a>
             <button class="btn" type="button" id="m-copiar">Copiar a lista</button>
-            <span class="monte-msg" id="m-msg" role="status">As escolhas ficam salvas neste navegador.</span>
+            <span class="monte-msg" id="m-msg" role="status">Cada marcação é salva e enviada automaticamente para a Esparta.</span>
           </div>
           <div class="filtro monte-filtro" role="group" aria-label="Mostrar itens">
             <button type="button" data-mf="todos" aria-pressed="true">Todos</button>
@@ -2657,7 +2657,28 @@ canvas.ass { width: 100%; height: 140px; background: var(--band); border: 1.5px 
   var CHAVE = "central-monte-escolhas";
   var marc = {}, notas = "";
   try { var s = JSON.parse(localStorage.getItem(CHAVE) || "null"); if (s) { marc = s.marc || {}; notas = s.notas || ""; } } catch (e) {}
-  function guardar() { try { localStorage.setItem(CHAVE, JSON.stringify({ marc: marc, notas: notas, em: new Date().toISOString() })); } catch (e) {} }
+  function guardar() { try { localStorage.setItem(CHAVE, JSON.stringify({ marc: marc, notas: notas, em: new Date().toISOString() })); } catch (e) {} agendarEnvio(); }
+
+  // Registro automático para a Esparta (n8n): uma linha por navegador, atualizada a cada mudança
+  var ENVIO_URL = "https://n8n-gna6.srv1812192.hstgr.cloud/webhook/central-escolhas";
+  var WHATS_DESTINO = "";
+  var SESSAO = "";
+  try { SESSAO = localStorage.getItem("central-monte-sessao") || ""; } catch (e) {}
+  if (!SESSAO) { SESSAO = "s" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8); try { localStorage.setItem("central-monte-sessao", SESSAO); } catch (e) {} }
+  var tEnvio = null, pendente = false;
+  function agendarEnvio() { pendente = true; clearTimeout(tEnvio); tEnvio = setTimeout(enviar, 2000); }
+  function enviar() {
+    if (!pendente) return; pendente = false; clearTimeout(tEnvio);
+    var sel = ITENS.filter(function (i) { return marc[i.id]; });
+    var corpo = { sessao: SESSAO, qtd_marcados: sel.length, fora_contrato: sel.filter(function (i) { return i.o !== "contrato"; }).length,
+      marcados: sel.map(function (i) { return i.t; }).join("; "), observacoes: notas, lista_completa: texto() };
+    try {
+      fetch(ENVIO_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(corpo), keepalive: true })
+        .then(function (r) { msg(r.ok ? "Salvo e enviado para a Esparta." : "Salvo neste navegador. O envio falhou; tentamos de novo na próxima marcação."); },
+              function () { msg("Salvo neste navegador. Sem conexão agora; tentamos de novo na próxima marcação."); });
+    } catch (e) {}
+  }
+  document.addEventListener("visibilitychange", function () { if (document.visibilityState === "hidden") enviar(); });
   function algum(ids) { return ids.some(function (id) { return marc[id]; }); }
   function $(id) { return document.getElementById(id); }
 
@@ -2691,7 +2712,7 @@ canvas.ass { width: 100%; height: 140px; background: var(--band); border: 1.5px 
     $("novos-sec").classList.toggle("esc-off", !novos.length);
     $("novos-mod").innerHTML = novos.map(function (i) { return '<div class="novo-card"><i>Tela a desenhar</i><b>' + i.t + "</b><span>" + i.d + "</span></div>"; }).join("");
     $("painel-vazio").hidden = n > 0;
-    $("m-wa").href = "https://wa.me/?text=" + encodeURIComponent(texto());
+    $("m-wa").href = "https://wa.me/" + WHATS_DESTINO + "?text=" + encodeURIComponent(texto());
   }
 
   function montar() {
@@ -2732,14 +2753,14 @@ canvas.ass { width: 100%; height: 140px; background: var(--band); border: 1.5px 
     var c = e.target.closest("[data-mck]"); if (!c) return;
     if (c.checked) marc[c.dataset.mck] = true; else delete marc[c.dataset.mck];
     c.parentNode.classList.toggle("on", c.checked);
-    guardar(); aplicar(); msg("Salvo neste navegador.");
+    guardar(); aplicar(); msg("Salvando…");
   });
-  function varios(fn) { ITENS.forEach(function (i) { if (fn(i)) marc[i.id] = true; else delete marc[i.id]; }); guardar(); sincronizar(); aplicar(); msg("Salvo neste navegador."); }
+  function varios(fn) { ITENS.forEach(function (i) { if (fn(i)) marc[i.id] = true; else delete marc[i.id]; }); guardar(); sincronizar(); aplicar(); msg("Salvando…"); }
   $("m-contrato").addEventListener("click", function () { varios(function (i) { return i.o === "contrato" || marc[i.id]; }); });
   $("m-tudo").addEventListener("click", function () { varios(function () { return true; }); });
   $("m-limpar").addEventListener("click", function () { varios(function () { return false; }); });
   var tN;
-  $("m-notas").addEventListener("input", function (e) { notas = e.target.value.slice(0, 3000); clearTimeout(tN); tN = setTimeout(function () { guardar(); aplicar(); msg("Salvo neste navegador."); }, 500); });
+  $("m-notas").addEventListener("input", function (e) { notas = e.target.value.slice(0, 3000); clearTimeout(tN); tN = setTimeout(function () { guardar(); aplicar(); msg("Salvando…"); }, 500); });
   $("m-wa").addEventListener("click", function (e) {
     if (!Object.keys(marc).length) { e.preventDefault(); msg("Marque pelo menos um item antes de enviar."); }
   });
