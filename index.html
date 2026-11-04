@@ -916,6 +916,9 @@ canvas.ass { width: 100%; height: 140px; background: var(--band); border: 1.5px 
 .mi-ck em.contrato { color: var(--ok); background: var(--ok-soft); }
 .mi-ck em.novo { color: var(--blue); background: var(--sheet); border: 1px solid var(--blue); }
 .mi-ck em.mercado { color: var(--warn); background: var(--warn-soft); }
+.mi-ck.f-off, .mg.f-off { display: none; }
+.monte-filtro { justify-self: start; }
+.mg h3 small { font-weight: 600; letter-spacing: 0; text-transform: none; margin-left: 6px; }
 .monte-notas { display: grid; gap: 6px; }
 .monte-notas label { font-size: 13px; font-weight: 700; color: var(--ink); }
 .monte-notas textarea { font: inherit; font-size: 14px; color: var(--text); background: var(--band); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; min-height: 80px; resize: vertical; width: 100%; box-sizing: border-box; }
@@ -984,7 +987,7 @@ canvas.ass { width: 100%; height: 140px; background: var(--band); border: 1.5px 
       <details class="monte" id="monte" open>
         <summary>
           <span class="monte-tit"><b>Monte a sua Central</b><span>Marque o que a ferramenta precisa ter. O menu e as telas aparecem conforme você marca.</span></span>
-          <span class="monte-cont"><span><strong id="m-n">0</strong>de 27 marcados</span><span class="fora"><strong id="m-fora">0</strong>fora do contrato atual</span><span class="monte-seta" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></span></span>
+          <span class="monte-cont"><span><strong id="m-n">0</strong>de <span id="m-total">0</span> marcados</span><span class="fora"><strong id="m-fora">0</strong>fora do contrato atual</span><span class="monte-seta" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></span></span>
         </summary>
         <div class="monte-corpo">
           <div class="monte-acoes">
@@ -994,6 +997,14 @@ canvas.ass { width: 100%; height: 140px; background: var(--band); border: 1.5px 
             <a class="btn wa" id="m-wa" href="https://wa.me/" target="_blank" rel="noopener">Enviar escolhas pelo WhatsApp</a>
             <button class="btn" type="button" id="m-copiar">Copiar a lista</button>
             <span class="monte-msg" id="m-msg" role="status">As escolhas ficam salvas neste navegador.</span>
+          </div>
+          <div class="filtro monte-filtro" role="group" aria-label="Mostrar itens">
+            <button type="button" data-mf="todos" aria-pressed="true">Todos</button>
+            <button type="button" data-mf="contrato" aria-pressed="false">Já no contrato</button>
+            <button type="button" data-mf="novo" aria-pressed="false">Pedido novo</button>
+            <button type="button" data-mf="mercado" aria-pressed="false">Visto no mercado</button>
+            <button type="button" data-mf="marcados" aria-pressed="false">Só os marcados</button>
+            <button type="button" data-mf="faltam" aria-pressed="false">Ainda não marcados</button>
           </div>
           <div class="monte-grupos" id="m-grupos"></div>
           <div class="monte-notas">
@@ -2494,6 +2505,7 @@ canvas.ass { width: 100%; height: 140px; background: var(--band); border: 1.5px 
    As escolhas ficam no localStorage deste navegador e podem ser enviadas pelo WhatsApp. */
 (function () {
   var ORIGEM = { contrato: "Já no contrato", novo: "Pedido novo", mercado: "Visto no mercado" };
+  // [id, nome, descrição, origem, tela]  tela: 1 = já existe no protótipo; 0 = tela a desenhar; 2 = funciona por trás, sem tela própria
   var GR = [
     ["Gestão da obra", [
       ["dashboard", "Todas as obras numa tela", "Orçado, realizado, saldo e % executado de cada obra.", "contrato", 1],
@@ -2503,34 +2515,118 @@ canvas.ass { width: 100%; height: 140px; background: var(--band); border: 1.5px 
       ["avisos", "Painel de avisos", "Recados e alertas da obra num lugar só.", "novo", 1],
       ["conversa", "Conversa da obra", "Mensagens entre os envolvidos, guardadas dentro da obra.", "novo", 1],
       ["modelos", "Modelos por tipo de instalação", "Etapas, prazos e checklist prontos para cada tipo de obra.", "mercado", 0],
-      ["agenda", "Agenda das equipes", "Quem está em qual loja em cada semana, com as viagens.", "mercado", 1]
+      ["redes", "Cadastro de redes e lojas", "Cada rede com suas lojas, endereços e contatos do gerente.", "mercado", 0],
+      ["rollout", "Visão por rede de lojas", "Todas as lojas de uma rede: quais já foram feitas, quais faltam.", "mercado", 0],
+      ["dependencias", "Fases que dependem de outras", "Uma fase só começa quando a anterior termina; atrasos empurram as seguintes.", "mercado", 0],
+      ["critico", "Fases que atrasam a obra inteira em destaque", "Mostra onde um dia de atraso vira atraso na entrega.", "mercado", 0],
+      ["linhabase", "Planejado original × planejado atual", "Guarda o cronograma aprovado para comparar com as mudanças.", "mercado", 0],
+      ["tarefas", "Tarefas com responsável e prazo", "Lista de afazeres de cada obra, com lembrete para quem é o dono.", "mercado", 0],
+      ["calendario", "Calendário das obras", "Início, entregas e visitas de todas as obras num calendário.", "mercado", 0],
+      ["riscos", "Riscos e problemas da obra", "O que pode dar errado, o impacto e quem cuida.", "mercado", 0],
+      ["entrega", "Encerramento com termo de entrega", "A obra fecha com termo assinado pelo responsável da loja.", "mercado", 0],
+      ["mapa", "Mapa das obras", "Todas as lojas no mapa, com a situação de cada uma.", "mercado", 0]
     ]],
-    ["Orçamento e números", [
+    ["Orçamento", [
       ["orcamento", "Orçamento do jeito da empresa", "Itens, mão de obra e material, com versões e cópia de obra anterior.", "contrato", 1],
       ["aditivos", "Aditivos aprovados pelo cliente", "Serviço extra pedido na loja, aprovado e somado ao orçamento.", "mercado", 0],
+      ["biblioteca", "Biblioteca de itens e preços", "Itens e serviços já cadastrados, com preço atualizado, para montar orçamento rápido.", "mercado", 0],
+      ["composicao", "Composição de cada serviço", "Quanto de mão de obra, material e equipamento entra em cada item.", "mercado", 0],
+      ["margem", "Margem, impostos e taxas no preço", "O preço final calculado a partir do custo, com a margem desejada.", "mercado", 0],
+      ["viagem_orc", "Deslocamento e hospedagem no orçamento", "Diárias, hotel, combustível e pedágio calculados por loja.", "mercado", 0],
+      ["proposta", "Proposta em PDF para o cliente", "Orçamento com a sua marca, pronto para enviar.", "mercado", 0],
+      ["aprova_prop", "Aprovação da proposta pelo cliente", "O cliente aprova pelo link, e a obra nasce do orçamento aprovado.", "mercado", 0],
+      ["versoes", "Comparar versões do orçamento", "O que mudou da versão 1 para a 2, item a item.", "mercado", 0],
+      ["importar_xls", "Importar orçamento de planilha", "Trazer um orçamento pronto do Excel.", "mercado", 0]
+    ]],
+    ["Custos e acompanhamento", [
       ["fisfin", "Físico-financeiro e % executado", "Quanto vale cada etapa e quanto já foi feito e gasto.", "contrato", 1],
+      ["orc_real", "Orçado × realizado por item", "Onde a obra está gastando mais do que o previsto.", "mercado", 0],
+      ["previsao", "Previsão de custo final da obra", "Quanto a obra vai custar no fim, pelo ritmo de gasto atual.", "mercado", 0],
+      ["margem_obra", "Lucro de cada obra", "Valor recebido menos tudo o que foi gasto, obra por obra.", "mercado", 0],
       ["medicao", "Medição e cobrança por etapa", "O % executado vira o valor a receber do cliente.", "mercado", 0],
-      ["relatorios", "Relatórios e curva S", "Custos por obra e categoria, programado × realizado.", "contrato", 1]
+      ["relatorios", "Relatórios e curva S", "Custos por obra e categoria, programado × realizado.", "contrato", 1],
+      ["indices", "Nota de prazo e de custo de cada obra", "Um número simples que diz se a obra está adiantada ou atrasada, barata ou cara.", "mercado", 0],
+      ["comparar_obras", "Comparar obras parecidas", "Custo e prazo médio por tipo de loja, para orçar melhor.", "mercado", 0]
     ]],
     ["Equipe em campo", [
       ["diario", "Diário de obra com fotos e assinaturas", "Fotos pela câmera e assinatura com o dedo do colaborador e do responsável pela loja.", "contrato", 1],
       ["diario_mais", "Equipe presente, clima e ocorrências", "O que o Mais Controle já registra hoje no diário.", "mercado", 1],
       ["vistoria", "Checklist de vistoria e pendências", "Lista de entrega com foto e aceite do responsável pela loja.", "mercado", 0],
-      ["ponto", "Chegada na loja e horas por obra", "Registro de entrada e saída, ligado ao custo de mão de obra.", "mercado", 0],
+      ["formularios", "Checklists personalizados", "Segurança, conferência de material, início de serviço: a empresa monta os seus.", "mercado", 0],
+      ["fotos_local", "Fotos com data, hora e local", "Prova de que a foto foi tirada na loja, naquele dia.", "mercado", 0],
+      ["antes_depois", "Antes e depois", "Fotos lado a lado do mesmo ponto da loja.", "mercado", 0],
+      ["marcar_foto", "Marcar defeitos na foto", "Desenhar e escrever sobre a foto para apontar o problema.", "mercado", 0],
+      ["voz", "Diário por voz", "O colaborador fala e a Central escreve o diário.", "mercado", 0],
+      ["resumo_ia", "Resumo do dia feito pela IA", "Os registros do dia viram um resumo curto para o gestor e o cliente.", "mercado", 0],
       ["documentos", "Plantas e documentos da obra", "Layout da loja e projeto, sempre na versão certa.", "mercado", 0],
-      ["offline", "Funciona sem internet", "O celular guarda e envia quando o sinal voltar.", "mercado", 0]
+      ["material_obra", "Material recebido na loja", "Foto da nota e conferência do que chegou.", "mercado", 0],
+      ["ferramentas", "Ferramentas e equipamentos", "Onde está cada furadeira, escada ou andaime, e com quem.", "mercado", 0],
+      ["offline", "Funciona sem internet", "O celular guarda e envia quando o sinal voltar.", "mercado", 2],
+      ["app_icone", "Ícone na tela do celular", "Abre como um aplicativo, sem precisar de loja de apps.", "mercado", 2]
     ]],
-    ["Despesas e financeiro", [
+    ["Pessoas e equipes", [
+      ["agenda", "Agenda das equipes", "Quem está em qual loja em cada semana, com as viagens.", "mercado", 1],
+      ["ponto", "Chegada na loja e horas por obra", "Registro de entrada e saída, ligado ao custo de mão de obra.", "mercado", 0],
+      ["colaboradores", "Cadastro de colaboradores e funções", "Quem é quem, função e contato, ligado ao WhatsApp.", "mercado", 0],
+      ["terceiros", "Terceirizados e empreiteiros", "Equipes de fora, com o que foi contratado e quanto já foi pago.", "mercado", 0],
+      ["docs_colab", "Documentos e treinamentos com validade", "ASO, NR-35, NR-10: aviso antes de vencer.", "mercado", 0],
+      ["epi", "Entrega de EPI", "Quem recebeu capacete, cinto e luvas, com assinatura.", "mercado", 0],
+      ["viagens", "Viagens da equipe", "Hotel, passagem e roteiro entre as lojas.", "mercado", 0],
+      ["diarias", "Diárias e adiantamento de viagem", "Quanto cada um levou e quanto prestou contas.", "mercado", 0],
+      ["custo_mo", "Custo de mão de obra por obra", "Horas e diárias somadas ao custo de cada obra.", "mercado", 0],
+      ["produtividade", "Produtividade por equipe", "Quanto cada equipe entrega por dia, por tipo de serviço.", "mercado", 0]
+    ]],
+    ["Despesas de campo", [
       ["whatsapp", "Despesas pelo WhatsApp", "Foto do cupom + “Projeto 11, loja Marabá, alimentação”.", "contrato", 1],
       ["aprovacao", "Aprovação de pré-lançamentos", "O gestor confere, escolhe a conta e a data de pagamento.", "contrato", 1],
       ["quempagou", "Quem pagou e saldo de cada colaborador", "Cartão da empresa, adiantamento ou reembolso.", "mercado", 0],
+      ["limites", "Limite de gasto por pessoa ou categoria", "Aviso quando a alimentação ou o hotel passa do combinado.", "mercado", 0],
+      ["cartao", "Cartão corporativo da equipe", "Os gastos do cartão entram sozinhos e só pedem o cupom.", "mercado", 0],
+      ["km", "Quilometragem e combustível", "Distância percorrida até a loja vira reembolso calculado.", "mercado", 0]
+    ]],
+    ["Financeiro", [
       ["pagar", "Contas a pagar e a receber", "Com baixa e estorno, nunca exclusão.", "contrato", 0],
       ["caixa", "Fluxo de caixa da empresa e de cada obra", "Por período e por categoria.", "contrato", 1],
-      ["compras", "Pedido de material pelo campo", "A equipe pede, o escritório cota e compra.", "mercado", 0]
+      ["centro_custo", "Centros de custo e categorias", "Alimentação, mão de obra, hotel, material e as que a empresa criar.", "contrato", 0],
+      ["previsao_caixa", "Previsão de caixa dos próximos 90 dias", "O que entra e o que sai, semana a semana.", "mercado", 0],
+      ["conciliacao", "Conferência com o extrato do banco", "Importar o extrato e casar com os lançamentos.", "mercado", 0],
+      ["nf_fornecedor", "Notas fiscais de fornecedores", "Importar a nota (XML) e lançar a conta a pagar.", "mercado", 0],
+      ["nfse", "Emissão de nota fiscal de serviço", "Emitir a nota para o cliente direto da Central.", "mercado", 0],
+      ["cobranca", "Cobrança por boleto ou Pix", "Gerar a cobrança e dar baixa quando o cliente pagar.", "mercado", 0],
+      ["contabilidade", "Envio para a contabilidade", "Arquivo do mês pronto para o contador.", "mercado", 0]
+    ]],
+    ["Compras e material", [
+      ["compras", "Pedido de material pelo campo", "A equipe pede, o escritório cota e compra.", "mercado", 0],
+      ["cotacao", "Cotação com fornecedores", "Comparar preço e prazo de vários fornecedores.", "mercado", 0],
+      ["pedido_compra", "Pedido de compra com aprovação", "Compra acima de um valor precisa de aprovação.", "mercado", 0],
+      ["fornecedores", "Cadastro de fornecedores", "Contatos, prazos e histórico de preço.", "mercado", 0],
+      ["estoque", "Estoque de material", "O que sobrou de uma obra e pode ir para a próxima.", "mercado", 0],
+      ["entrega_loja", "Entrega direto na loja", "Acompanhar a entrega do fornecedor na obra.", "mercado", 0]
     ]],
     ["Cliente da loja", [
       ["link", "Link de acompanhamento para o lojista", "Andamento e fotos da obra, sem precisar de senha.", "mercado", 0],
-      ["alertas", "Avisos automáticos no WhatsApp", "Etapa atrasada, gasto acima do previsto, diário pendente.", "mercado", 0]
+      ["alertas", "Avisos automáticos no WhatsApp", "Etapa atrasada, gasto acima do previsto, diário pendente.", "mercado", 0],
+      ["aprova_etapa", "Aprovação de etapas pelo cliente", "O cliente confirma que a etapa ficou pronta.", "mercado", 0],
+      ["assinatura_dig", "Contratos com assinatura digital", "Contrato e aditivos assinados pelo celular.", "mercado", 0],
+      ["relatorio_cliente", "Relatório semanal para o cliente", "Fotos e avanço da semana enviados sozinhos.", "mercado", 0],
+      ["satisfacao", "Pesquisa de satisfação", "Uma nota do cliente ao final de cada obra.", "mercado", 0],
+      ["garantia", "Chamados de garantia e manutenção", "O cliente abre um chamado depois da entrega e a equipe atende.", "mercado", 0]
+    ]],
+    ["Relatórios e inteligência", [
+      ["relatorio_auto", "Resumo semanal para o gestor", "Obras atrasadas, gastos fora do previsto e pendências, no WhatsApp ou e-mail.", "mercado", 0],
+      ["pergunte", "Perguntar à Central em português", "“Quanto gastei com hotel em outubro?” e a resposta vem com os números.", "mercado", 0],
+      ["ranking", "Ranking das obras", "As mais lucrativas, as mais atrasadas, as que mais gastaram.", "mercado", 0],
+      ["exportar", "Exportar para Excel", "Qualquer tabela da Central vira planilha.", "mercado", 0],
+      ["painel_tv", "Painel para TV do escritório", "As obras do dia numa tela grande, atualizando sozinha.", "mercado", 0]
+    ]],
+    ["Acesso e segurança", [
+      ["perfis", "Perfis de acesso", "Admin, gestor, financeiro e campo: cada um vê só o que precisa.", "contrato", 2],
+      ["login_cel", "Entrar pelo celular com código", "Sem senha para decorar: código no WhatsApp.", "mercado", 2],
+      ["auditoria", "Registro de quem fez o quê", "Toda alteração fica registrada com nome e hora.", "mercado", 2],
+      ["notificacoes", "Notificações no celular", "Aviso na tela quando algo precisa de você.", "mercado", 2],
+      ["backup", "Cópia de segurança diária", "Banco de dados e fotos guardados todo dia, fora do servidor.", "contrato", 2],
+      ["mais_controle", "Ligação com o Mais Controle na transição", "Lê os dados do sistema atual até a Central assumir tudo.", "contrato", 2],
+      ["multiempresa", "Mais de uma empresa (CNPJ)", "Separar números de empresas do mesmo grupo.", "mercado", 0]
     ]]
   ];
   var FIN = ["orcamento", "aditivos", "whatsapp", "aprovacao", "quempagou", "caixa", "pagar", "medicao"];
@@ -2556,7 +2652,7 @@ canvas.ass { width: 100%; height: 140px; background: var(--band); border: 1.5px 
     ['.os-grupo[aria-label="Financeiro"]', ["fisfin", "pagar", "medicao", "whatsapp", "aprovacao", "quempagou"]]
   ];
   var ITENS = [];
-  GR.forEach(function (g) { g[1].forEach(function (i) { ITENS.push({ id: i[0], t: i[1], d: i[2], o: i[3], tela: !!i[4] }); }); });
+  GR.forEach(function (g) { g[1].forEach(function (i) { ITENS.push({ id: i[0], t: i[1], d: i[2], o: i[3], tela: i[4] }); }); });
 
   var CHAVE = "central-monte-escolhas";
   var marc = {}, notas = "";
@@ -2589,9 +2685,9 @@ canvas.ass { width: 100%; height: 140px; background: var(--band); border: 1.5px 
     document.querySelectorAll("[data-escolha]").forEach(function (el) { el.classList.toggle("esc-off", !algum(el.dataset.escolha.split(" "))); });
     var n = 0, fora = 0;
     ITENS.forEach(function (i) { if (marc[i.id]) { n++; if (i.o !== "contrato") fora++; } });
-    $("m-n").textContent = n; $("m-fora").textContent = fora;
+    $("m-n").textContent = n; $("m-fora").textContent = fora; $("m-total").textContent = ITENS.length; filtrar();
     // Escolhas que ainda não têm tela no protótipo
-    var novos = ITENS.filter(function (i) { return marc[i.id] && !i.tela; });
+    var novos = ITENS.filter(function (i) { return marc[i.id] && i.tela === 0; });
     $("novos-sec").classList.toggle("esc-off", !novos.length);
     $("novos-mod").innerHTML = novos.map(function (i) { return '<div class="novo-card"><i>Tela a desenhar</i><b>' + i.t + "</b><span>" + i.d + "</span></div>"; }).join("");
     $("painel-vazio").hidden = n > 0;
@@ -2610,6 +2706,25 @@ canvas.ass { width: 100%; height: 140px; background: var(--band); border: 1.5px 
     document.querySelectorAll("[data-mck]").forEach(function (c) { c.checked = !!marc[c.dataset.mck]; c.parentNode.classList.toggle("on", c.checked); });
   }
   function msg(t) { $("m-msg").textContent = t; }
+  var filtroM = "todos";
+  function filtrar() {
+    document.querySelectorAll("#m-grupos .mg").forEach(function (g) {
+      var algumVisivel = false;
+      g.querySelectorAll(".mi-ck").forEach(function (l) {
+        var c = l.querySelector("input"), o = l.querySelector("em").className;
+        var ok = filtroM === "todos" || (filtroM === "marcados" ? c.checked : filtroM === "faltam" ? !c.checked : o === filtroM);
+        l.classList.toggle("f-off", !ok); if (ok) algumVisivel = true;
+      });
+      g.classList.toggle("f-off", !algumVisivel);
+    });
+  }
+  document.querySelectorAll("[data-mf]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      filtroM = b.dataset.mf;
+      document.querySelectorAll("[data-mf]").forEach(function (o) { o.setAttribute("aria-pressed", String(o === b)); });
+      filtrar();
+    });
+  });
 
   montar(); aplicar();
 
